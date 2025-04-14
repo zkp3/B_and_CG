@@ -11,8 +11,7 @@ wid = 1280
 hei = 700
 wid_div = wid/2
 hei_div = hei/2
-pyg.display.set_caption('PING_COIN_GAME')
-scrn = pyg.display.set_mode((wid, hei))
+
 Xspeed_circle = float(input('Скорость шарика: '))
 Yspeed_circle = Xspeed_circle
 Xcircle = wid_div
@@ -22,6 +21,9 @@ max_coins = int(input('Максимальное количество монет:
 size = 40
 kol_vo_coin = random.randint(0, max_coins)
 score = 0
+
+pyg.display.set_caption('PING_COIN_GAME')
+scrn = pyg.display.set_mode((wid, hei))
 
 coins = [(random.randint(size, wid - size), random.randint(size, hei - size)) for i in range(kol_vo_coin)]
 run = 'game'
