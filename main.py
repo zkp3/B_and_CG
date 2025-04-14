@@ -3,7 +3,7 @@ import sys, pygame as pyg, random
 def print_text(size, center:bool, text:str, color, x, y, surface):
     font = pyg.font.Font(None, 36)
     text = font.render(text, 1, color)
-    if ceneter == True:
+    if center == True:
         x,y = text.get_rect(center=(x, y))
     return scrn.blit(text, (x, y))
 
