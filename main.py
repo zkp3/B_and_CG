@@ -1,12 +1,10 @@
 import sys, pygame as pyg, random
 
-def print_text(size, center:bool, text:str, color, x, y, surface):
+def print_text(size, text:str, color, x, y, surface):
     font = pyg.font.Font(None, 36)
     text = font.render(text, 1, color)
-    if center == True:
-        xyText = text.get_rect(center=(x, y))
-        x, y = xyText
-    return scrn.blit(text, (x,y))
+    xyText = text.get_rect(center=(x, y))
+    return scrn.blit(text, (xyText))
 
 pyg.init()
 
@@ -92,7 +90,7 @@ while run == 'gameover':
             if event.key == pyg.K_ESCAPE:
                 run = False
     scrn.fill((0,0,0))
-    print_text(90, True, 'GAME-OVER! :(', (255, 0, 0), wid_div, hei_div, scrn)
+    print_text(90, 'GAME-OVER! :(', (255, 0, 0), wid_div, hei_div, scrn)
     pyg.time.Clock().tick(120)
     pyg.display.flip()
 while run == 'win':
@@ -104,7 +102,7 @@ while run == 'win':
             if event.key == pyg.K_ESCAPE:
                 run = False
     scrn.fill((0,0,0))
-    print_text(90, True, 'YOU WIN! :)', (0, 255, 255), wid_div, hei_div, scrn)
+    print_text(90, 'YOU WIN! :)', (0, 255, 255), wid_div, hei_div, scrn)
     pyg.time.Clock().tick(120)
     pyg.display.flip()
 pyg.quit()
