@@ -88,6 +88,8 @@ while run == 'gameover':
                 run = False
     scrn.fill((0,0,0))
     print_text(90, True, 'GAME-OVER! :(', (255, 0, 0), wid_div, hei_div, scrn)
+    pyg.time.Clock().tick(120)
+    pyg.display.flip()
 while run == 'win':
     keys = pyg.key.get_pressed()
     for event in pyg.event.get():
@@ -98,6 +100,7 @@ while run == 'win':
                 run = False
     scrn.fill((0,0,0))
     print_text(90, True, 'YOU WIN! :)', (0, 255, 255), wid_div, hei_div, scrn)
-
+    pyg.time.Clock().tick(120)
+    pyg.display.flip()
 pyg.quit()
 sys.exit()
