@@ -27,9 +27,9 @@ Xcircle = wid_div
 Ycircle = hei_div
 accelerat = float(input('На сколько ускорется игра при сборе монеты: '))
 max_coins = int(input('Максимальное количество монет: '))
-if wid / hei > 1:
-    size = wid // 30
-else: size = hei // 30
+if wid < hei:
+    size = wid // 20
+else: size = hei // 20
 
 kol_vo_coin = random.randint(0, max_coins)
 score = 0
