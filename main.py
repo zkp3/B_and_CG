@@ -1,147 +1,91 @@
-import sys, pygame as pyg, random, os
+import sys, pygame as pyg, random as rnd, os, importlib as ilib
+
+# типа нужно чтобы фотография и main.py были в одной папке.
+# Поизменяйте wid и hei. Короче, я сделал чтобы они под размер экрана настраивались,
+# с рамкой (то есть они не будут растянуты.
+# '/testroom_background1.png' ()должна называться как и
+# файл фотографии, которая в одной папке с главным py.
+
 main_dir = os.path.dirname(__file__)
+print(os.path.dirname(__file__))
 
-def print_text(size, text:str, color, x, y, surface):
-    font = pyg.font.Font(None, size)
-    text = font.render(text, 1, color)
-    xyText = text.get_rect(center=(x, y))
-    return scrn.blit(text, (xyText))
+def bg_transf(width, height, bg_path):
+    bg = pyg.image.load(bg_path)
+    old_bg_wid = bg.get_width()
+    old_bg_hei = bg.get_height()
+    scrn_ratio = wid / hei
+    bg_ratio = old_bg_wid / old_bg_hei
 
-def transform_img(path:str, new_size):
-    new_imgX, new_imgY = new_size
-    img = pyg.image.load(path)
-    img = pyg.transform.scale(img, (new_imgX, new_imgY))
-    return img
+    if bg_ratio > scrn_ratio:
+        bg_wid = wid
+        bg_hei = wid / bg_ratio
+    else:
+        bg_hei = hei
+        bg_wid = hei * bg_ratio
+    bg = pyg.transform.scale(bg, (bg_wid, bg_hei))
+    x, y = (width - bg_wid)/2, (height - bg_hei)/2
+    return bg, x, y, old_bg_wid, old_bg_hei
+def sprite_transf(sprite_path, bg, scale_factor):
+    sprite = pyg.image.load(sprite_path)
+    bg_wid = bg.get_width()
+    bg_hei = bg.get_height()
+    sprite_wid = sprite.get_width()
+    sprite_hei = sprite.get_height()
+    sprite_ratio = sprite_wid / sprite_hei
+    if (bg_wid / bg_hei) > sprite_ratio:
+        sprite_wid = bg_wid * scale_factor
+        sprite_hei = sprite_wid / sprite_ratio
+    else:
+        sprite_hei = bg_hei * scale_factor
+        sprite_wid = sprite_hei * sprite_ratio
+    sprite = pyg.transform.scale(sprite, (sprite_wid, sprite_hei))
+    return sprite
+
+
+################
+
+fscrn = 1
+wid = 1280
+hei = 900
+
+#######################3
 
 pyg.init()
+wind_nm = 'TEST-ROOM'
+pyg.display.set_caption(wind_nm)
+if fscrn:
+    inf_diply = pyg.display.Info()
+    wid = inf_diply.current_w
+    hei = inf_diply.current_h
+    scrn = pyg.display.set_mode((wid, hei), pyg.FULLSCREEN, pyg.NOFRAME)
+elif fscrn == False:
+    scrn = pyg.display.set_mode((wid, hei))
 
-display_info = pyg.display.Info()
-wid = display_info.current_w
-hei = display_info.current_h
-wid_div = wid//2
-hei_div = hei//2
+#########################################3
 
-Xspeed_circle = float(input('\nСкорость шарика\n'
-                            '(к приеру: для экрана размером 1280 на 900\n'
-                            'лучше используйте скорость 1-5): '))
-old_speed = Xspeed_circle
-Yspeed_circle = Xspeed_circle
-Xcircle = wid_div
-Ycircle = hei_div
-accelerat = float(input('\nНа сколько ускорется игра при сборе монеты\n'
-                        '(можно писать числа с плавающей точкой): '))
-max_coins = int(input('\nМаксимальное количество монет\n'
-                      '(будет рандомное колличество монет от 0 до...): '))
-if wid < hei:
-    size = wid // 20
-else:
-    size = hei // 20
+wid_div = wid / 2
+hei_div = hei / 2
+main = 'menu'
+test_room_bg_path = main_dir + '/testroom_background.png'
+plyrSprite_path = main_dir + '/player_sprite.png'
+plyrX = 50
+plyrY = 190
 
-bgWid, bgHei = pyg.image.load(main_dir + '/background.jpg').get_size()
-scale_width = wid / bgWid
-scale_height = hei / bgHei
-#min выводит минимальное значение из данных
-scale_factor = min(scale_width, scale_height)
-bgWid = int(bgWid * scale_factor)
-bgHei = int(bgHei * scale_factor)
-
-kol_vo_coin = random.randint(0, max_coins)
-score = 0
-
-coin_sprite = transform_img(main_dir + '/coin_sprite.png', (size, size))
-circle_sprite = transform_img(main_dir + '/circle_sprite.png', (size, size))
-background_sprite = transform_img((main_dir + '/background.jpg'), (bgWid, bgHei))
-bgX = (wid - bgWid) // 2
-bgY = (hei - bgHei) // 2
-pyg.display.set_caption('PING_COIN_GAME')
-scrn = pyg.display.set_mode((wid, hei), pyg.NOFRAME)
-
-coins = [(random.randint(bgX, bgX+bgWid-size), random.randint(bgY, bgY+bgHei-size)) for i in range(kol_vo_coin)]
-run = 'game'
-
+#################################
+test_room_bg, bg_x, bg_y, old_bg_wid, old_bg_hei = bg_transf(wid, hei, test_room_bg_path)
+bg_wid = test_room_bg.get_width()
+bg_hei = test_room_bg.get_height()
+plyrSprite = sprite_transf(plyrSprite_path, test_room_bg, 0.1)
+###################################
 while True:
     keys = pyg.key.get_pressed()
     for event in pyg.event.get():
         if event.type == pyg.QUIT:
             pyg.quit()
             sys.exit()
-        elif event.type == pyg.KEYDOWN:
-            if event.key == pyg.K_ESCAPE:
-                pyg.quit()
-                sys.exit()
-    if run == 'game':
-        if keys[pyg.K_r]:
-            score = 0
-            Xcircle = wid_div
-            Ycircle = hei_div
-            Yspeed_circle = Xspeed_circle = old_speed
-            kol_vo_coin = random.randint(0, max_coins)
-            coins = [(random.randint(bgX, bgX + bgWid - size), random.randint(bgY, bgY + bgHei - size)) for i in range(kol_vo_coin)]
-        scrn.fill((0, 0, 0))
-        scrn.blit(background_sprite, (bgX, bgY))
-        scrn.blit(circle_sprite, (Xcircle, Ycircle))
 
-        #создаем список coin на основе координат из списка coins
-        for coin in coins:
-            #координаты именно той монеты, которая сейчас
-            Xcoin, Ycoin = coin
-            #области в которых находятся объекты
-            coin_rect = pyg.Rect(Xcoin, Ycoin, size, size)
-            circle_rect = pyg.Rect(Xcircle, Ycircle, size, size)
-            scrn.blit(coin_sprite, (Xcoin, Ycoin))
-            #проверка на касание
-            if circle_rect.colliderect(coin_rect):
-                score += 1
-                Xspeed_circle += -accelerat if Xspeed_circle < 0 else accelerat
-                Yspeed_circle += -accelerat if Yspeed_circle < 0 else accelerat
-                #удаление координат монетки, чтобы она больше не рисовалась
-                #при следующем повторении цикла
-                coins.remove(coin)
+    scrn.blit(test_room_bg, (bg_x, bg_y))
+    scrn.blit(plyrSprite, (bg_wid / old_bg_wid * plyrX + ((wid-bg_wid)/2), bg_hei / old_bg_hei * plyrY + ((hei-bg_hei)/2)))
 
-        #изменение координат шарика
-        Xcircle += Xspeed_circle
-        Ycircle += Yspeed_circle
-        #изменение скорости на отрицательную при нажатии на кнопки
-        if keys[pyg.K_UP]:
-            if Yspeed_circle > 0:
-                Yspeed_circle = -Yspeed_circle
-        elif keys[pyg.K_DOWN]:
-            if Yspeed_circle < 0:
-                Yspeed_circle = -Yspeed_circle
-        if keys[pyg.K_LEFT]:
-            if Xspeed_circle > 0:
-                Xspeed_circle = -Xspeed_circle
-        elif keys[pyg.K_RIGHT]:
-            if Xspeed_circle < 0:
-                Xspeed_circle = -Xspeed_circle
-
-        #переход к конечному экрану
-        if Xcircle > bgX+bgWid - size or Xcircle < bgX or Ycircle > bgY+bgHei - size or Ycircle < bgY:
-            run = 'gameover'
-        elif score == kol_vo_coin:
-            run = 'win'
-
-    elif run == 'gameover':
-        scrn.fill((0,0,0))
-        print_text(size*2, 'GAME-OVER! :(', (255, 0, 0), wid_div, hei_div, scrn)
-        if keys[pyg.K_r]:
-            score = 0
-            Xcircle = wid_div
-            Ycircle = hei_div
-            Yspeed_circle = Xspeed_circle = old_speed
-            kol_vo_coin = random.randint(0, max_coins)
-            coins = [(random.randint(bgX, bgX + bgWid - size), random.randint(bgY, bgY + bgHei - size)) for i in range(kol_vo_coin)]
-            run = 'game'
-    elif run == 'win':
-        scrn.fill((0,0,0))
-        print_text(size*2, 'YOU WIN! :)', (0, 255, 255), wid_div, hei_div, scrn)
-        if keys[pyg.K_r]:
-            score = 0
-            Xcircle = wid_div
-            Ycircle = hei_div
-            Yspeed_circle = Xspeed_circle = old_speed
-            kol_vo_coin = random.randint(0, max_coins)
-            coins = [(random.randint(bgX, bgX + bgWid - size), random.randint(bgY, bgY + bgHei - size)) for i in range(kol_vo_coin)]
-            run = 'game'
     pyg.time.Clock().tick(120)
     pyg.display.flip()
