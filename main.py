@@ -70,7 +70,11 @@ run = 'game'
 
 timeTextReset = 0
 print('Запуск...\n')
-pyg.time.delay(1000)
+timeForStart = 4
+for i in range(timeForStart):
+    timeForStart -= 1
+    pyg.time.delay(1000)
+    print(f'Запуск через: {timeForStart} секунд!')
 pyg.display.set_caption('PING_COIN_GAME')
 scrn = pyg.display.set_mode((wid, hei), pyg.NOFRAME)
 while True:
@@ -86,7 +90,7 @@ while True:
                 pyg.quit()
                 sys.exit()
             if event.key == pyg.K_r:
-                print('Reset\n')
+                print('Reset\nrun = game')
                 score = 0
                 Xcircle = wid_div
                 Ycircle = hei_div
