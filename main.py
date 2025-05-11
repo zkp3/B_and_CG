@@ -38,7 +38,10 @@ Xspeed_circle = -1
 max_speed = scale_factor*13
 
 while Xspeed_circle < 0 or Xspeed_circle > max_speed:
-    Xspeed_circle = float(input(f'\nСкорость шарика (от 0 до {max_speed}): '))
+    try:
+        Xspeed_circle = float(input(f'\nСкорость шарика (от 0 до {max_speed}): '))
+    except ValueError:
+        pass
 
 old_speed = Xspeed_circle
 Yspeed_circle = Xspeed_circle
@@ -49,12 +52,18 @@ accelerat = -1
 max_accelerat = scale_factor * 2
 
 while accelerat < 0 or accelerat > max_accelerat:
-    accelerat = float(input(f'\nНа сколько ускорется игра при сборе монеты (от 0 до {max_accelerat}): '))
+    try:
+        accelerat = float(input(f'\nНа сколько ускорется игра при сборе монеты (от 0 до {max_accelerat}): '))
+    except ValueError:
+        pass
 
 max_coins = -1
-while max_coins < 0:
-    max_coins = input('\nРандомное колличество монет от 0 до ')
-    max_coins = int(max_coins)
+max_max_coins = int(scale_factor * 150)
+while max_coins < 0 or max_coins > max_max_coins:
+    try:
+        max_coins = int(input(f'\nРандомное количество монет (целое число от 0 до {max_max_coins}): '))
+    except ValueError:
+        pass
 
 kol_vo_coin = random.randint(0, max_coins)
 score = 0
@@ -75,8 +84,14 @@ for i in range(timeForStart):
     timeForStart -= 1
     pyg.time.delay(1000)
     print(f'Запуск через: {timeForStart} секунд!')
-pyg.display.set_caption('PING_COIN_GAME')
+pyg.display.set_caption('B&CG')
 scrn = pyg.display.set_mode((wid, hei), pyg.NOFRAME)
+
+music_path = main_dir + '/music.mp3'
+
+pyg.mixer.music.load(music_path)
+pyg.mixer_music.play(-1)
+
 while True:
     keys = pyg.key.get_pressed()
     for event in pyg.event.get():
