@@ -13,6 +13,7 @@ def transform_img(path:str, new_size):
     img = pyg.transform.scale(img, (new_imgX, new_imgY))
     return img
 
+
 pyg.init()
 
 display_info = pyg.display.Info()
@@ -75,15 +76,8 @@ bgX = (wid - bgWid) // 2
 bgY = (hei - bgHei) // 2
 
 coins = [(random.randint(bgX, bgX+bgWid-size), random.randint(bgY, bgY+bgHei-size)) for i in range(kol_vo_coin)]
-run = 'game'
+string_number = 0
 
-timeTextReset = 0
-print('Запуск...\n')
-timeForStart = 4
-for i in range(timeForStart):
-    timeForStart -= 1
-    pyg.time.delay(1000)
-    print(f'Запуск через: {timeForStart} секунд!')
 pyg.display.set_caption('B&CG')
 scrn = pyg.display.set_mode((wid, hei), pyg.NOFRAME)
 
@@ -91,31 +85,56 @@ music_path = main_dir + '/music.mp3'
 
 pyg.mixer.music.load(music_path)
 pyg.mixer_music.play(-1)
+run = 'menu'
 
 while True:
     keys = pyg.key.get_pressed()
     for event in pyg.event.get():
         if event.type == pyg.QUIT:
-            print('Exit...')
             pyg.quit()
             sys.exit()
         elif event.type == pyg.KEYDOWN:
             if event.key == pyg.K_ESCAPE:
-                print('Exit...')
                 pyg.quit()
                 sys.exit()
-            if event.key == pyg.K_r:
-                print('Reset\nrun = game')
+
+            if event.key == pyg.K_m:
                 score = 0
                 Xcircle = wid_div
                 Ycircle = hei_div
                 Yspeed_circle = Xspeed_circle = old_speed
                 kol_vo_coin = random.randint(0, max_coins)
-                coins = [(random.randint(bgX, bgX + bgWid - size), random.randint(bgY, bgY + bgHei - size)) for i in range(kol_vo_coin)]
+                coins = [(random.randint(bgX, bgX + bgWid - size), random.randint(bgY, bgY + bgHei - size)) for i in
+                         range(kol_vo_coin)]
                 timeTextReset = 0
-                run = 'game'
+                run = 'menu'
 
+            if run == 'menu':
+                if string_number > 0 and event.key == pyg.K_UP:
+                    string_number -= 1
+                elif string_number < 2 - 1 and event.key == pyg.K_DOWN:
+                    string_number += 1
+                if string_number == 0:
+                    if event.key == pyg.K_RETURN:
+                        run = 'game'
+                elif string_number == 1:
+                    if event.key == pyg.K_RETURN:
+                        print('Exit...')
+                        pyg.quit()
+                        sys.exit()
+
+    if run == 'menu':
+        scrn.fill((0, 0, 0))
+        scrn.blit(background_sprite, (bgX, bgY))
+        print_text(size * 2, 'M-MENU', (255, 100, 0), wid_div, hei_div - size * 2.5, scrn)
+        if string_number == 0:
+            print_text(size * 2, 'START', (255, 255, 0), wid_div, hei_div, scrn)
+            print_text(size * 2, 'ESC-EXIT', (255, 255, 255), wid_div, hei_div + size * 2.5, scrn)
+        elif string_number == 1:
+            print_text(size * 2, 'START', (255, 255, 255), wid_div, hei_div, scrn)
+            print_text(size * 2, 'ESC-EXIT', (255, 255, 0), wid_div, hei_div + size * 2.5, scrn)
     old_run = run
+
     if run == 'game':
         scrn.fill((0, 0, 0))
         scrn.blit(background_sprite, (bgX, bgY))
@@ -130,16 +149,12 @@ while True:
             scrn.blit(coin_sprite, (Xcoin, Ycoin))
             #проверка на касание
             if circle_rect.colliderect(coin_rect):
-                print('Собрана монета')
                 score += 1
                 Xspeed_circle += -accelerat if Xspeed_circle < 0 else accelerat
                 Yspeed_circle += -accelerat if Yspeed_circle < 0 else accelerat
                 #удаление координат монетки, чтобы она больше не рисовалась
                 #при следующем повторении цикла
                 coins.remove(coin)
-        if timeTextReset != 80:
-            print_text(size*2, 'R-reset!', (255, 255, 0), wid_div, hei_div, scrn)
-            timeTextReset += 1
 
         #изменение координат шарика
         Xcircle += Xspeed_circle
@@ -170,8 +185,5 @@ while True:
     elif run == 'win':
         scrn.fill((0,0,0))
         print_text(size*2, 'YOU WIN! :)', (0, 255, 255), wid_div, hei_div, scrn)
-
-    if old_run != run:
-        print(f'Run = {run}')
     pyg.time.Clock().tick(120)
     pyg.display.flip()
