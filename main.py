@@ -1,6 +1,5 @@
-import sys, pygame as pyg, random, os
-main_dir = os.path.dirname(__file__)
-
+import sys, pygame as pyg, random, os, settings
+pyg.init()
 def print_text(size, text:str, color, x, y, surface):
     font = pyg.font.Font(None, size)
     text = font.render(text, 1, color)
@@ -13,8 +12,11 @@ def transform_img(path:str, new_size):
     img = pyg.transform.scale(img, (new_imgX, new_imgY))
     return img
 
+main_dir = os.path.dirname(__file__)
 
-pyg.init()
+old_speed = Yspeed_circle = Xspeed_circle = settings.speed_circle
+accelerat = settings.accelerat
+max_coins = settings.max_coins
 
 display_info = pyg.display.Info()
 wid = display_info.current_w
@@ -27,7 +29,7 @@ if wid < hei:
 else:
     size = hei // 20
 
-bgWid, bgHei = pyg.image.load(main_dir + '/background.jpg').get_size()
+bgWid, bgHei = pyg.image.load(main_dir + '/background.png').get_size()
 scale_width = wid / bgWid
 scale_height = hei / bgHei
 #min выводит минимальное значение из данных
@@ -35,58 +37,34 @@ scale_factor = min(scale_width, scale_height)
 bgWid = int(bgWid * scale_factor)
 bgHei = int(bgHei * scale_factor)
 
-Xspeed_circle = -1
-max_speed = scale_factor*13
-
-while Xspeed_circle < 0 or Xspeed_circle > max_speed:
-    try:
-        Xspeed_circle = float(input(f'\nСкорость шарика (от 0 до {max_speed}): '))
-    except ValueError:
-        pass
-
-old_speed = Xspeed_circle
-Yspeed_circle = Xspeed_circle
 Xcircle = wid_div
 Ycircle = hei_div
 
-accelerat = -1
+max_speed = scale_factor*30
 max_accelerat = scale_factor * 2
-
-while accelerat < 0 or accelerat > max_accelerat:
-    try:
-        accelerat = float(input(f'\nНа сколько ускорется игра при сборе монеты (от 0 до {max_accelerat}): '))
-    except ValueError:
-        pass
-
-max_coins = -1
 max_max_coins = int(scale_factor * 150)
-while max_coins < 0 or max_coins > max_max_coins:
-    try:
-        max_coins = int(input(f'\nРандомное количество монет (целое число от 0 до {max_max_coins}): '))
-    except ValueError:
-        pass
 
 kol_vo_coin = random.randint(0, max_coins)
-score = 0
 
 coin_sprite = transform_img(main_dir + '/coin_sprite.png', (size, size))
 circle_sprite = transform_img(main_dir + '/circle_sprite.png', (size, size))
-background_sprite = transform_img((main_dir + '/background.jpg'), (bgWid, bgHei))
+background_sprite = transform_img((main_dir + '/background.png'), (bgWid, bgHei))
 bgX = (wid - bgWid) // 2
 bgY = (hei - bgHei) // 2
 
 coins = [(random.randint(bgX, bgX+bgWid-size), random.randint(bgY, bgY+bgHei-size)) for i in range(kol_vo_coin)]
-string_number = 0
+score = m_menu_delay = settings_delay = string_number = 0
 
 pyg.display.set_caption('B&CG')
 scrn = pyg.display.set_mode((wid, hei), pyg.NOFRAME)
 
+#music
 music_path = main_dir + '/music.mp3'
-
 pyg.mixer.music.load(music_path)
 pyg.mixer_music.play(-1)
+m_menu_rgb = (255, 0, 0)
 run = 'menu'
-
+print('Запуск игрового цикла...')
 while True:
     keys = pyg.key.get_pressed()
     for event in pyg.event.get():
@@ -98,7 +76,7 @@ while True:
                 pyg.quit()
                 sys.exit()
 
-            if event.key == pyg.K_m:
+            if event.key == pyg.K_LSHIFT or event.key == pyg.K_RSHIFT:
                 score = 0
                 Xcircle = wid_div
                 Ycircle = hei_div
@@ -108,34 +86,112 @@ while True:
                          range(kol_vo_coin)]
                 timeTextReset = 0
                 run = 'menu'
+                string_number = 0
+                print('menu')
 
             if run == 'menu':
                 if string_number > 0 and event.key == pyg.K_UP:
                     string_number -= 1
-                elif string_number < 2 - 1 and event.key == pyg.K_DOWN:
+                elif string_number < 3 - 1 and event.key == pyg.K_DOWN:
                     string_number += 1
                 if string_number == 0:
                     if event.key == pyg.K_RETURN:
                         run = 'game'
-                elif string_number == 1:
+                        print('game')
+                if string_number == 1:
+                    if event.key == pyg.K_RETURN:
+                        run = 'settings'
+                        string_number = 0
+                        print('settings')
+                elif string_number == 2:
                     if event.key == pyg.K_RETURN:
                         print('Exit...')
                         pyg.quit()
                         sys.exit()
+            if run == 'settings':
+                if string_number > 0 and event.key == pyg.K_UP:
+                    string_number -= 1
+                elif string_number < 3 - 1 and event.key == pyg.K_DOWN:
+                    string_number += 1
+
 
     if run == 'menu':
+        if m_menu_delay > 0:
+            m_menu_delay -= 1
+        elif m_menu_delay == 0:
+            if m_menu_rgb == (255, 0, 0):
+                m_menu_rgb = (0, 255, 0)
+            elif m_menu_rgb == (0, 255, 0):
+                m_menu_rgb = (0, 0, 255)
+            elif m_menu_rgb == (0, 0, 255):
+                m_menu_rgb = (255, 0, 0)
+            m_menu_delay = 5
+
         scrn.fill((0, 0, 0))
         scrn.blit(background_sprite, (bgX, bgY))
-        print_text(size * 2, 'M-MENU', (255, 100, 0), wid_div, hei_div - size * 2.5, scrn)
+        print_text(size * 2, 'SHIFT-MENU', (m_menu_rgb), wid_div, hei_div - size * 5, scrn)
         if string_number == 0:
-            print_text(size * 2, 'START', (255, 255, 0), wid_div, hei_div, scrn)
+            print_text(size * 2, 'START', (255, 255, 0), wid_div, hei_div - size * 2.5, scrn)
+            print_text(size * 2, 'SETTINGS', (255, 255, 255), wid_div, hei_div, scrn)
             print_text(size * 2, 'ESC-EXIT', (255, 255, 255), wid_div, hei_div + size * 2.5, scrn)
         elif string_number == 1:
-            print_text(size * 2, 'START', (255, 255, 255), wid_div, hei_div, scrn)
+            print_text(size * 2, 'START', (255, 255, 255), wid_div, hei_div - size * 2.5, scrn)
+            print_text(size * 2, 'SETTINGS', (255, 255, 0), wid_div, hei_div, scrn)
+            print_text(size * 2, 'ESC-EXIT', (255, 255, 255), wid_div, hei_div + size * 2.5, scrn)
+        else:
+            print_text(size * 2, 'START', (255, 255, 255), wid_div, hei_div - size * 2.5, scrn)
+            print_text(size * 2, 'SETTINGS', (255, 255, 255), wid_div, hei_div, scrn)
             print_text(size * 2, 'ESC-EXIT', (255, 255, 0), wid_div, hei_div + size * 2.5, scrn)
-    old_run = run
 
-    if run == 'game':
+    elif run == 'settings':
+        if settings_delay > 0:
+            settings_delay -= 1
+        scrn.fill((0, 0, 0))
+        scrn.blit(background_sprite, (bgX, bgY))
+        if keys[pyg.K_LEFT] or keys[pyg.K_RIGHT]:
+            file_sett_path = main_dir + '/settings.py'
+            file_sett = open(file_sett_path, 'w')
+            file_sett.close()
+            file_sett = open(file_sett_path, 'w')
+            file_sett.write(
+                f'speed_circle = {old_speed}\n'
+                f'accelerat = {accelerat}\n'
+                f'max_coins = {max_coins}\n')
+
+        if string_number == 0:
+            if keys[pyg.K_LEFT] and settings_delay == 0 and old_speed > 0:
+                Yspeed_circle = Xspeed_circle = old_speed = round(old_speed - 0.1, 1)
+                settings_delay = 5
+            elif keys[pyg.K_RIGHT] and settings_delay == 0 and old_speed < max_speed:
+                Yspeed_circle = Xspeed_circle = old_speed = round(old_speed + 0.1, 1)
+                settings_delay = 5
+            print_text(size * 2, f'BallSpeed:<{(int(old_speed*10))}>', (255, 255, 0), wid_div, hei_div - size * 2.5, scrn)
+            print_text(size * 2, f'MaxCoins:<{max_coins}>', (255, 255, 255), wid_div, hei_div, scrn)
+            print_text(size * 2, f'Acceleration:<{(int(accelerat*10))}>', (255, 255, 255), wid_div, hei_div + size * 2.5, scrn)
+
+        elif string_number == 1:
+            if keys[pyg.K_LEFT] and settings_delay == 0 and max_coins > 0:
+                max_coins -= 1
+                settings_delay = 5
+            elif keys[pyg.K_RIGHT] and settings_delay == 0 and max_coins < max_max_coins:
+                max_coins += 1
+                settings_delay = 5
+            print_text(size * 2, f'BallSpeed:<{(int(old_speed*10))}>', (255, 255, 255), wid_div, hei_div - size * 2.5, scrn)
+            print_text(size * 2, f'MaxCoins:<{max_coins}>', (255, 255, 0), wid_div, hei_div, scrn)
+            print_text(size * 2, f'Acceleration:<{(int(accelerat*10))}>', (255, 255, 255), wid_div, hei_div + size * 2.5, scrn)
+
+        else:
+            if keys[pyg.K_LEFT] and settings_delay == 0 and accelerat > 0:
+                accelerat = round(accelerat - 0.1, 1)
+                settings_delay = 5
+            elif keys[pyg.K_RIGHT] and settings_delay == 0 and accelerat < max_accelerat:
+                accelerat = round(accelerat + 0.1, 1)
+                settings_delay = 5
+            print_text(size * 2, f'BallSpeed:<{(int(old_speed*10))}>', (255, 255, 255), wid_div, hei_div - size * 2.5, scrn)
+            print_text(size * 2, f'MaxCoins:<{max_coins}>', (255, 255, 255), wid_div, hei_div, scrn)
+            print_text(size * 2, f'Acceleration:<{(int(accelerat*10))}>', (255, 255, 0), wid_div, hei_div + size * 2.5, scrn)
+
+    elif run == 'game':
         scrn.fill((0, 0, 0))
         scrn.blit(background_sprite, (bgX, bgY))
         scrn.blit(circle_sprite, (Xcircle, Ycircle))
@@ -155,6 +211,7 @@ while True:
                 #удаление координат монетки, чтобы она больше не рисовалась
                 #при следующем повторении цикла
                 coins.remove(coin)
+                print('Удалена одна монета')
 
         #изменение координат шарика
         Xcircle += Xspeed_circle
@@ -176,14 +233,18 @@ while True:
         #переход к конечному экрану
         if Xcircle > bgX+bgWid - size or Xcircle < bgX or Ycircle > bgY+bgHei - size or Ycircle < bgY:
             run = 'gameover'
+            print('gameover')
         elif score == kol_vo_coin:
             run = 'win'
+            print('win')
 
     elif run == 'gameover':
         scrn.fill((0,0,0))
+        scrn.blit(background_sprite, (bgX, bgY))
         print_text(size*2, 'GAME-OVER! :(', (255, 0, 0), wid_div, hei_div, scrn)
     elif run == 'win':
         scrn.fill((0,0,0))
+        scrn.blit(background_sprite, (bgX, bgY))
         print_text(size*2, 'YOU WIN! :)', (0, 255, 255), wid_div, hei_div, scrn)
     pyg.time.Clock().tick(120)
     pyg.display.flip()
