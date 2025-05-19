@@ -21,6 +21,8 @@ max_coins = settings.max_coins
 display_info = pyg.display.Info()
 wid = display_info.current_w
 hei = display_info.current_h
+wid = 1280
+hei = 500
 wid_div = wid // 2
 hei_div = hei // 2
 
@@ -40,7 +42,7 @@ bgHei = int(bgHei * scale_factor)
 Xcircle = wid_div
 Ycircle = hei_div
 
-max_speed = scale_factor*30
+max_speed = scale_factor*13
 max_accelerat = scale_factor * 2
 max_max_coins = int(scale_factor * 150)
 
@@ -114,19 +116,18 @@ while True:
                 elif string_number < 3 - 1 and event.key == pyg.K_DOWN:
                     string_number += 1
 
+    if m_menu_delay > 0:
+        m_menu_delay -= 1
+    elif m_menu_delay == 0:
+        if m_menu_rgb == (255, 0, 0):
+            m_menu_rgb = (0, 255, 0)
+        elif m_menu_rgb == (0, 255, 0):
+            m_menu_rgb = (0, 0, 255)
+        elif m_menu_rgb == (0, 0, 255):
+            m_menu_rgb = (255, 0, 0)
+        m_menu_delay = 5
 
     if run == 'menu':
-        if m_menu_delay > 0:
-            m_menu_delay -= 1
-        elif m_menu_delay == 0:
-            if m_menu_rgb == (255, 0, 0):
-                m_menu_rgb = (0, 255, 0)
-            elif m_menu_rgb == (0, 255, 0):
-                m_menu_rgb = (0, 0, 255)
-            elif m_menu_rgb == (0, 0, 255):
-                m_menu_rgb = (255, 0, 0)
-            m_menu_delay = 5
-
         scrn.fill((0, 0, 0))
         scrn.blit(background_sprite, (bgX, bgY))
         print_text(size * 2, 'SHIFT-MENU', (m_menu_rgb), wid_div, hei_div - size * 5, scrn)
@@ -157,14 +158,16 @@ while True:
                 f'speed_circle = {old_speed}\n'
                 f'accelerat = {accelerat}\n'
                 f'max_coins = {max_coins}\n')
-
+        print_text(size * 2, 'D-DEFAULT', (m_menu_rgb), wid_div, hei_div - size * 4.5, scrn)
         if string_number == 0:
             if keys[pyg.K_LEFT] and settings_delay == 0 and old_speed > 0:
                 Yspeed_circle = Xspeed_circle = old_speed = round(old_speed - 0.1, 1)
-                settings_delay = 5
+                settings_delay = 8
             elif keys[pyg.K_RIGHT] and settings_delay == 0 and old_speed < max_speed:
                 Yspeed_circle = Xspeed_circle = old_speed = round(old_speed + 0.1, 1)
-                settings_delay = 5
+                settings_delay = 8
+            elif keys[pyg.K_d]:
+                Yspeed_circle = Xspeed_circle = old_speed = 0.0
             print_text(size * 2, f'BallSpeed:<{(int(old_speed*10))}>', (255, 255, 0), wid_div, hei_div - size * 2.5, scrn)
             print_text(size * 2, f'MaxCoins:<{max_coins}>', (255, 255, 255), wid_div, hei_div, scrn)
             print_text(size * 2, f'Acceleration:<{(int(accelerat*10))}>', (255, 255, 255), wid_div, hei_div + size * 2.5, scrn)
@@ -172,10 +175,12 @@ while True:
         elif string_number == 1:
             if keys[pyg.K_LEFT] and settings_delay == 0 and max_coins > 0:
                 max_coins -= 1
-                settings_delay = 5
+                settings_delay = 8
             elif keys[pyg.K_RIGHT] and settings_delay == 0 and max_coins < max_max_coins:
                 max_coins += 1
-                settings_delay = 5
+                settings_delay = 8
+            elif keys[pyg.K_d]:
+                max_coins = 0
             print_text(size * 2, f'BallSpeed:<{(int(old_speed*10))}>', (255, 255, 255), wid_div, hei_div - size * 2.5, scrn)
             print_text(size * 2, f'MaxCoins:<{max_coins}>', (255, 255, 0), wid_div, hei_div, scrn)
             print_text(size * 2, f'Acceleration:<{(int(accelerat*10))}>', (255, 255, 255), wid_div, hei_div + size * 2.5, scrn)
@@ -183,10 +188,12 @@ while True:
         else:
             if keys[pyg.K_LEFT] and settings_delay == 0 and accelerat > 0:
                 accelerat = round(accelerat - 0.1, 1)
-                settings_delay = 5
+                settings_delay = 8
             elif keys[pyg.K_RIGHT] and settings_delay == 0 and accelerat < max_accelerat:
                 accelerat = round(accelerat + 0.1, 1)
-                settings_delay = 5
+                settings_delay = 8
+            elif keys[pyg.K_d]:
+                accelerat = 0.0
             print_text(size * 2, f'BallSpeed:<{(int(old_speed*10))}>', (255, 255, 255), wid_div, hei_div - size * 2.5, scrn)
             print_text(size * 2, f'MaxCoins:<{max_coins}>', (255, 255, 255), wid_div, hei_div, scrn)
             print_text(size * 2, f'Acceleration:<{(int(accelerat*10))}>', (255, 255, 0), wid_div, hei_div + size * 2.5, scrn)
