@@ -22,9 +22,11 @@ display_info = pyg.display.Info()
 wid = display_info.current_w
 hei = display_info.current_h
 
+#середина экрана
 wid_div = wid // 2
 hei_div = hei // 2
 
+#получение размеров обоев и изменение их размеров
 if wid < hei:
     size = wid // 20
 else:
@@ -33,29 +35,35 @@ else:
 bgWid, bgHei = pyg.image.load(main_dir + '/background.png').get_size()
 scale_width = wid / bgWid
 scale_height = hei / bgHei
-#min выводит минимальное значение из данных
 scale_factor = min(scale_width, scale_height)
 bgWid = int(bgWid * scale_factor)
 bgHei = int(bgHei * scale_factor)
 
+#нач. координаты шарика
 Xcircle = wid_div
 Ycircle = hei_div
 
+#подстраивание максимальных значений под размер экрана, чтобы игрок не мог выставлять слишком большие
 max_speed = scale_factor*13
 max_accelerat = scale_factor * 2
 max_max_coins = int(scale_factor * 150)
 
+#генерирация рандомного количества монет
 kol_vo_coin = random.randint(0, max_coins)
 
+#трансформация
 coin_sprite = transform_img(main_dir + '/coin_sprite.png', (size, size))
 circle_sprite = transform_img(main_dir + '/circle_sprite.png', (size, size))
 background_sprite = transform_img((main_dir + '/background.png'), (bgWid, bgHei))
-bgX = (wid - bgWid) // 2
-bgY = (hei - bgHei) // 2
 
+bgX, bgY = (wid - bgWid) // 2, (hei - bgHei) // 2
+
+#генерирация рандомных координат для определённого количества монет
 coins = [(random.randint(bgX, bgX+bgWid-size), random.randint(bgY, bgY+bgHei-size)) for i in range(kol_vo_coin)]
+#создание пустых переменных
 score = m_menu_delay = settings_delay = string_number = 0
 
+#создание окна
 pyg.display.set_caption('B&CG')
 scrn = pyg.display.set_mode((wid, hei), pyg.NOFRAME)
 
@@ -65,7 +73,7 @@ pyg.mixer.music.load(music_path)
 pyg.mixer_music.play(-1)
 m_menu_rgb = (255, 0, 0)
 run = 'menu'
-print('Запуск игрового цикла...')
+print('start game loop...')
 while True:
     keys = pyg.key.get_pressed()
     for event in pyg.event.get():
@@ -83,12 +91,11 @@ while True:
                 Ycircle = hei_div
                 Yspeed_circle = Xspeed_circle = old_speed
                 kol_vo_coin = random.randint(0, max_coins)
-                coins = [(random.randint(bgX, bgX + bgWid - size), random.randint(bgY, bgY + bgHei - size)) for i in
-                         range(kol_vo_coin)]
+                coins = [(random.randint(bgX, bgX + bgWid - size), random.randint(bgY, bgY + bgHei - size)) for i in range(kol_vo_coin)]
                 timeTextReset = 0
                 run = 'menu'
                 string_number = 0
-                print('menu')
+                print('run = menu')
 
             if run == 'menu':
                 if string_number > 0 and event.key == pyg.K_UP:
@@ -98,12 +105,12 @@ while True:
                 if string_number == 0:
                     if event.key == pyg.K_RETURN:
                         run = 'game'
-                        print('game')
+                        print('run = game')
                 if string_number == 1:
                     if event.key == pyg.K_RETURN:
                         run = 'settings'
                         string_number = 0
-                        print('settings')
+                        print('run = settings')
                 elif string_number == 2:
                     if event.key == pyg.K_RETURN:
                         print('Exit...')
@@ -114,7 +121,7 @@ while True:
                     string_number -= 1
                 elif string_number < 3 - 1 and event.key == pyg.K_DOWN:
                     string_number += 1
-
+    #для мигающих разными цветами надписей
     if m_menu_delay > 0:
         m_menu_delay -= 1
     elif m_menu_delay == 0:
@@ -126,6 +133,7 @@ while True:
             m_menu_rgb = (255, 0, 0)
         m_menu_delay = 5
 
+    #запуск меню
     if run == 'menu':
         scrn.fill((0, 0, 0))
         scrn.blit(background_sprite, (bgX, bgY))
@@ -142,7 +150,7 @@ while True:
             print_text(size * 2, 'START', (255, 255, 255), wid_div, hei_div - size * 2.5, scrn)
             print_text(size * 2, 'SETTINGS', (255, 255, 255), wid_div, hei_div, scrn)
             print_text(size * 2, 'ESC-EXIT', (255, 255, 0), wid_div, hei_div + size * 2.5, scrn)
-
+    #запуск настроек игры
     elif run == 'settings':
         if settings_delay > 0:
             settings_delay -= 1
@@ -196,7 +204,7 @@ while True:
             print_text(size * 2, f'BallSpeed:<{(int(old_speed*10))}>', (255, 255, 255), wid_div, hei_div - size * 2.5, scrn)
             print_text(size * 2, f'MaxCoins:<{max_coins}>', (255, 255, 255), wid_div, hei_div, scrn)
             print_text(size * 2, f'Acceleration:<{(int(accelerat*10))}>', (255, 255, 0), wid_div, hei_div + size * 2.5, scrn)
-
+    #запуск самой игры
     elif run == 'game':
         scrn.fill((0, 0, 0))
         scrn.blit(background_sprite, (bgX, bgY))
@@ -217,7 +225,7 @@ while True:
                 #удаление координат монетки, чтобы она больше не рисовалась
                 #при следующем повторении цикла
                 coins.remove(coin)
-                print('Удалена одна монета')
+                print('coin removed')
 
         #изменение координат шарика
         Xcircle += Xspeed_circle
@@ -239,10 +247,10 @@ while True:
         #переход к конечному экрану
         if Xcircle > bgX+bgWid - size or Xcircle < bgX or Ycircle > bgY+bgHei - size or Ycircle < bgY:
             run = 'gameover'
-            print('gameover')
+            print('run = gameover')
         elif score == kol_vo_coin:
             run = 'win'
-            print('win')
+            print('run = win')
 
     elif run == 'gameover':
         scrn.fill((0,0,0))
