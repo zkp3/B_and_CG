@@ -21,8 +21,7 @@ max_coins = settings.max_coins
 display_info = pyg.display.Info()
 wid = display_info.current_w
 hei = display_info.current_h
-wid = 1280
-hei = 500
+
 wid_div = wid // 2
 hei_div = hei // 2
 
