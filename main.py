@@ -156,7 +156,7 @@ while True:
             settings_delay -= 1
         scrn.fill((0, 0, 0))
         scrn.blit(background_sprite, (bgX, bgY))
-        if keys[pyg.K_LEFT] or keys[pyg.K_RIGHT]:
+        if keys[pyg.K_LEFT] or keys[pyg.K_RIGHT] or keys[pyg.K_d]:
             file_sett_path = main_dir + '/settings.py'
             file_sett = open(file_sett_path, 'w')
             file_sett.close()
